@@ -27,7 +27,7 @@ is( sub_fullname( \&vamp::spike ), 'vamp::spike' );
 is( sub_fullname( \&slayer ), 'main::buffy' );
 is( sub_fullname( \&human::william ), 'vamp::spike' );
 
-sub xander { }
+sub xander;
 is( sub_name( \&xander ), 'xander', 'undefined subroutine' );
 
 is( sub_name( sub {} ), '__ANON__' );

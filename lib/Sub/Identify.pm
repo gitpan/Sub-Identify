@@ -3,7 +3,7 @@ package Sub::Identify;
 use B ();
 use Exporter;
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 @ISA = ('Exporter');
 %EXPORT_TAGS = (all => [ @EXPORT_OK = qw(sub_name stash_name sub_fullname) ]);
 
@@ -50,7 +50,7 @@ Sub::Identify - Retrieve names of code references
 
 =head1 DESCRIPTION
 
-C<Sub::Identify> allows to retrive the real name of code references. For
+C<Sub::Identify> allows you to retrieve the real name of code references. For
 this, it uses perl's introspection mechanism, provided by the C<B> module.
 
 It provides three functions : C<sub_name> returns the name of the
