@@ -17,4 +17,5 @@ MANIFEST
 MANIFEST.SKIP
 Changes
 META.yml                                 Module meta-data (added by MakeMaker)
+TODO.mdown
 META.json                                Module JSON meta-data (added by MakeMaker)

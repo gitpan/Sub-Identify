@@ -4,7 +4,7 @@ use strict;
 use Exporter;
 
 BEGIN {
-    our $VERSION = '0.05';
+    our $VERSION = '0.06';
     our @ISA = ('Exporter');
     our %EXPORT_TAGS = (
         all => [
@@ -56,6 +56,8 @@ BEGIN {
 
             return ($cv->START->file, $cv->START->line);
         };
+    }
+    if ($IsPurePerl || $] < 5.016) {
         *is_sub_constant = sub ($) {
             my ($coderef) = @_;
             ref $coderef or return 0;
