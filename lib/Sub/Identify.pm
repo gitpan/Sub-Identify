@@ -4,31 +4,36 @@ use strict;
 use Exporter;
 
 BEGIN {
-    our $VERSION = '0.04';
+    our $VERSION = '0.05';
     our @ISA = ('Exporter');
-    our %EXPORT_TAGS = (all => [ our @EXPORT_OK = qw(sub_name stash_name sub_fullname get_code_info) ]);
+    our %EXPORT_TAGS = (
+        all => [
+            our @EXPORT_OK = qw(
+                sub_name
+                stash_name
+                sub_fullname
+                get_code_info
+                get_code_location
+                is_sub_constant
+            )
+        ]
+    );
 
-    my $loaded = 0;
+    our $IsPurePerl = 1;
     unless ($ENV{PERL_SUB_IDENTIFY_PP}) {
-        local $@;
-        eval {
-            if ($] >= 5.006) {
+        if (
+            eval {
                 require XSLoader;
                 XSLoader::load(__PACKAGE__, $VERSION);
+                1;
             }
-            else {
-                require DynaLoader;
-                push @ISA, 'DynaLoader';
-                __PACKAGE__->bootstrap($VERSION);
-            }
-        };
-
-        die $@ if $@ && $@ !~ /object version|loadable object/;
-
-        $loaded = 1 unless $@;
+        ) {
+            $IsPurePerl = 0;
+        }
+        else {
+            die $@ if $@ && $@ !~ /object version|loadable object/;
+        }
     }
-
-    our $IsPurePerl = !$loaded;
 
     if ($IsPurePerl) {
         require B;
@@ -41,6 +46,24 @@ BEGIN {
             $cv->GV->isa('B::SPECIAL') and return;
 
             return ($cv->GV->STASH->NAME, $cv->GV->NAME);
+        };
+        *get_code_location = sub ($) {
+            my ($coderef) = @_;
+            ref $coderef or return;
+            my $cv = B::svref_2object($coderef);
+            $cv->isa('B::CV') && $cv->START->isa('B::COP')
+                or return;
+
+            return ($cv->START->file, $cv->START->line);
+        };
+        *is_sub_constant = sub ($) {
+            my ($coderef) = @_;
+            ref $coderef or return 0;
+            my $cv = B::svref_2object($coderef);
+            $cv->isa('B::CV') or return 0;
+            my $p = prototype $coderef;
+            defined $p && $p eq "" or return 0;
+            return ($cv->CvFLAGS & B::CVf_CONST()) == B::CVf_CONST();
         };
     }
 }
@@ -64,12 +87,14 @@ Sub::Identify - Retrieve names of code references
     my $p = stash_name( $some_coderef );
     my $fully_qualified_name = sub_fullname( $some_coderef );
     defined $subname
-	and print "this coderef points to sub $subname in package $p\n";
+        and say "this coderef points to sub $subname in package $p";
+    my ($file, $line) = get_code_location( $some_coderef );
+    is_sub_constant( $some_coderef )
+        and say "this coderef points to a constant subroutine";
 
 =head1 DESCRIPTION
 
-C<Sub::Identify> allows you to retrieve the real name of code references. For
-this, it uses perl's introspection mechanism, provided by the C<B> module.
+C<Sub::Identify> allows you to retrieve the real name of code references.
 
 It provides four functions : C<sub_name> returns the name of the
 subroutine (or C<__ANON__> if it's an anonymous code reference),
@@ -83,9 +108,28 @@ by the speed.)
 In case of subroutine aliasing, those functions always return the
 original name.
 
+=head2 Pure-Perl version
+
+By default C<Sub::Identify> tries to load an XS implementation of the
+C<get_code_info> function, for speed; if that fails, or if the environment
+variable PERL_SUB_IDENTIFY_PP is defined to a true value, it will fall
+back to a pure perl implementation, that uses perl's introspection mechanism,
+provided by the C<B> module.
+
+=head1 SEE ALSO
+
+L<Sub::Util>, part of the module distribution L<Scalar::List::Utils>
+since version 1.40.
+
+L<Sub::Name>
+
+=head1 SOURCE
+
+A git repository for the sources is at L<https://github.com/rgs/Sub-Identify>.
+
 =head1 LICENSE
 
-(c) Rafael Garcia-Suarez (rgarciasuarez at gmail dot com) 2005, 2008
+(c) Rafael Garcia-Suarez (rgs at consttype dot org) 2005, 2008, 2012, 2014
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.
