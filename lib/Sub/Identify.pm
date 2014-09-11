@@ -4,7 +4,7 @@ use strict;
 use Exporter;
 
 BEGIN {
-    our $VERSION = '0.06';
+    our $VERSION = '0.07';
     our @ISA = ('Exporter');
     our %EXPORT_TAGS = (
         all => [
@@ -58,6 +58,7 @@ BEGIN {
         };
     }
     if ($IsPurePerl || $] < 5.016) {
+        require B;
         *is_sub_constant = sub ($) {
             my ($coderef) = @_;
             ref $coderef or return 0;
