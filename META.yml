@@ -4,11 +4,11 @@ author:
   - unknown
 build_requires: {}
 dynamic_config: 1
-generated_by: 'ExtUtils::MakeMaker version 6.66, CPAN::Meta::Converter version 2.140640'
+generated_by: 'ExtUtils::MakeMaker version 6.59, CPAN::Meta::Converter version 2.112150'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: '1.4'
+  version: 1.4
 name: Sub-Identify
 no_index:
   directory:
@@ -16,4 +16,4 @@ no_index:
     - inc
 resources:
   repository: https://github.com/rgs/Sub-Identify.git
-version: '0.09'
+version: 0.10
